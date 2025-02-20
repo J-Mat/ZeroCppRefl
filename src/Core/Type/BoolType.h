@@ -1,19 +1,20 @@
 #pragma once
 #include "Core.h"
-#include "Type.h"
-#include "Any.hpp"
+#include "TypeBase.h"
+#include "Any.h"
 
 namespace REFL
 {
-	class FBoolType : public FType
+	class FTypeBase;
+	class FBoolType : public FTypeBase
 	{
 	public:
-		FBoolType(const std::string& Name): FType(Name){}
+		FBoolType();
 
-		EValueKind GetKind() const noexcept { return EValueKind::Boolean; }
+		virtual EValueKind GetKind() const { return EValueKind::Boolean; }
 
 		void SetValue(FAny&, bool) const;
 		bool GetValue(const FAny&) const;
 
 	};
-} // namespace DREF
+}

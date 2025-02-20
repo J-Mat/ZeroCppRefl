@@ -1,4 +1,4 @@
-set(ProjectName "ZeroReflection")
+set(ProjectName "Test")
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} HeadList SrcList HppList)
 

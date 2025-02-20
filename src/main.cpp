@@ -1,24 +1,42 @@
 #include <iostream>
-#include <variable_traits.hpp>
+#include "Core/Reflection.h"
+#include <cassert>
 
 struct Person {
 	Person() = default;
-	std::string name;
-	float height;
-	const bool hasChild;
-	const Person* couple;
+	bool bTest = false;
 };
 
 
-
-
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-	Person kk();
-	auto test = &Person::height;	
-	variable_traits<decltype(&Person::height)>::return_type a;
-	variable_traits<decltype(&Person::height)>::class_type b();
-	a = 4.0f;
-	std::cout << a << std::endl;
+	auto& ClassType = REFL::FClassFactory<Person>::Instance()
+		.Register("Percent")
+		.Property("bTest", &Person::bTest)
+		.GetType();
+
+	std::cout << ClassType.GetName() << std::endl;
+	for (auto prop : ClassType.Properties())
+	{
+		std::cout << prop->GetName() << std::endl;
+	}
+	
+	auto Prop = ClassType.Properties()[0];
+
+	Person p;
+	REFL::FAny ClassAny = REFL::AnyModule::MakeRefAny(p);
+	assert(ClassAny.GetAccessType() == REFL::FAny::EAccessType::Ref);
+	assert(ClassAny.GetType() == REFL::FactoryModule::GetType<Person>());
+	
+	REFL::FAny BoolAny  = Prop->Call(ClassAny);
+	assert(BoolAny.GetType() == REFL::FactoryModule::GetType<bool>());
+	
+	bool aa = BoolAny.GetType()->AsBool()->GetValue(BoolAny);
+	std::cout << aa << std::endl;
+	
+
+	//bool* res = REFL::TypeModule::TryCast<bool>(BoolAny);
+	//std::cout << *res << std::endl;
+	
 	return 0;
 }

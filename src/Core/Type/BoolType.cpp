@@ -1,10 +1,21 @@
 #include "BoolType.h"
 
-
 namespace REFL
 {
-	bool FBoolType::GetValue(const FAny& Any)
+	FBoolType::FBoolType() :
+		FTypeBase("bool", nullptr) {}
+
+
+
+	void FBoolType::SetValue(FAny& Dst, bool Value) const
 	{
-		return 
+		//*TypeModule::TryCast<bool>(Dst) = Value;
 	}
+
+	bool FBoolType::GetValue(const FAny& Any) const
+	{
+		//return *TypeModule::TryCastConst<bool>(Any);
+		return true;
+	}
+
 }

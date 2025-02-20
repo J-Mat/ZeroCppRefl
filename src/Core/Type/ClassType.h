@@ -1,33 +1,35 @@
 
 #pragma once
-#include "Core/Core.h"
-#include "Type.h"
-#include "Core/Any.hpp"
+#include "Core.h"
+#include "TypeBase.h"
+#include "Any.h"
 #include "./Property/Property.h"
 
 namespace REFL
 {
-	class FAny;
-	class ClassType final : public FType
+	class FProperty;
+	class FClassType final : public FTypeBase
 	{
-		public:
-			template <typename T>
-			friend class FClassFactory;
+	public:
+		template <typename T>
+		friend class FClassFactory;
 
-			using DefaultConstructFn = FAny(void);
+		using DefaultConstructFn = FAny(void);
 
-			explicit ClassType(const std::string& Name, DefaultConstructFn Fn)
-				: FType(EValueKind::Class, Name, Fn)
-			{}
+		explicit FClassType(const std::string& Name, DefaultConstructFn Fn)
+			: FTypeBase(Name, Fn)
+		{}
 
-			ClassType() : FType(EValueKind::Class, nullptr) {}
+		FClassType() : FTypeBase() {}
 
-			auto& Properties() const noexcept { return m_Properties; }
+		virtual EValueKind GetKind() const { return EValueKind::Class; }
 
-			void SetValue(FAny& From, FAny& To);
-			void StealValue(FAny& From, FAny& To);
+		auto& Properties() const noexcept { return m_Properties; }
 
-		private:
-			std::vector<Ref<FProperty>> m_Properties;
+		void SetValue(FAny& From, FAny& To);
+		void StealValue(FAny& From, FAny& To);
+
+	private:
+		std::vector<Ref<FProperty>> m_Properties;
 	};
 }

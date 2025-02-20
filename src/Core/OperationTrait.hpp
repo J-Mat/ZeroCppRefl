@@ -1,99 +1,118 @@
 #pragma once
-#include "VariableTraits.hpp"
+#include "Utils/VariableTraits.hpp"
 
 namespace REFL
 {
-	struct FTypeOperations final {
-		using DestroyFn = void(void*);
-		using CopyConstructFn = void*(void*);
-		using StealConstructFn = void*(void*);
-		using CopyAssignmentFn = void(void*, void*);
-		using StealAssignmentFn = void(void*, void*);
-	
-		DestroyFn* destroy = empty_destroy;
-		CopyConstructFn* copy_construct = empty_copy;
-		StealConstructFn* steal_construct = empty_steal;
-		CopyAssignmentFn* copy_assignment = empty_copy_assign;
-		StealAssignmentFn* steal_assignment = empty_steal_assign;
-	
-		static FTypeOperations Null;
-	
+	class FTypeOperations final 
+    {
+    public:
+		using FDestroyFn = void(void*);
+		using FCopyConstructFn = void*(void*);
+		using FStealConstructFn = void*(void*);
+		using FCopyAssignmentFn = void(void*, void*);
+		using FStealAssignmentFn = void(void*, void*);
+
+		FDestroyFn* Destroy = EmptyDestroy;
+		FCopyConstructFn* CopyConstruct = EmptyCopy;
+		FStealConstructFn* StealConstruct = EmptySteal;
+		FCopyAssignmentFn* CopyAssignment = EmptyCopyAssign;
+		FStealAssignmentFn* StealAssignment = EmptyStealAssign;
+
+        FTypeOperations() = default;
+        FTypeOperations(
+            FDestroyFn* DestroyFn,
+            FCopyConstructFn* CopyConstructFn,
+            FStealConstructFn* StealConstructFn,
+            FCopyAssignmentFn* CopyAssignmentFn,
+            FStealAssignmentFn* StealAssignmentFn
+        ) : Destroy(DestroyFn),
+            CopyConstruct(CopyConstructFn),
+            StealConstruct(StealConstructFn),
+            CopyAssignment(CopyAssignmentFn),
+            StealAssignment(StealAssignmentFn)
+        {}
 	private:
-		static void empty_destroy(void*) {}
-		static void* empty_copy(void*) { return nullptr; }
-		static void* empty_steal(void*) { return nullptr; }
-		static void empty_copy_assign(void*, void*) {}
-		static void empty_steal_assign(void*, void*) {}
+		static void EmptyDestroy(void*) {}
+		static void* EmptyCopy(void*) { return nullptr; }
+		static void* EmptySteal(void*) { return nullptr; }
+		static void EmptyCopyAssign(void*, void*) {}
+		static void EmptyStealAssign(void*, void*) {}
+    public:
+        static FTypeOperations* NullPtr()
+        {
+            static FTypeOperations Inst;
+            return &Inst;
+        }
 	};
 
-
 	template <typename T>
-	struct TTypeOperationTraits {
-    static void Destroy(void* elem) 
-	{
-        if constexpr (std::is_destructible_v<T>) 
-		{
-            if constexpr (std::is_array_v<T>)
-			{
-                delete[] (T*)(elem);
+	struct TTypeOperationTraits 
+    {
+        static void Destroy(void* elem) 
+        {
+            if constexpr (std::is_destructible_v<T>) 
+            {
+                if constexpr (std::is_array_v<T>)
+                {
+                    delete[] (T*)(elem);
+                }
+                else
+                {
+                    delete (T*)(elem);
+                }
+            } else {
             }
-			else
-			{
-                delete (T*)(elem);
+        }
+
+        static void* CopyConstruct(void* Elem)
+        {
+            if constexpr (std::is_copy_constructible_v<T>)
+            {
+                return new T{*(const T*)Elem};
+            } else
+            {
+                return nullptr;
             }
-        } else {
         }
-    }
 
-    static void* CopyConstruct(void* elem)
-	{
-        if constexpr (std::is_copy_constructible_v<T>)
-		{
-            return new T{*(const T*)elem};
-        } else 
-		{
-            return nullptr;
+        static void* StealConstruct(void* Elem) {
+            if constexpr (std::is_move_constructible_v<T>)
+            {
+                return new T{std::move(*(T*)Elem)};
+            } else
+            {
+                return nullptr;
+            }
         }
-    }
 
-    static void* StealConstruct(void* elem) {
-        if constexpr (std::is_move_constructible_v<T>)
-		{
-            return new T{std::move(*(T*)elem)};
-        } else
-		 {
-            return nullptr;
+        static void CopyAssignment(void* Dst, void* Src) {
+            if constexpr (std::is_copy_assignable_v<T>) 
+            {
+                *(T*)(Dst) = *(const T*)(Src);
+            } else {
+            }
         }
-    }
 
-    static void CopyAssignment(void* Dst, void* Src) {
-        if constexpr (std::is_copy_assignable_v<T>) 
-		{
-            *(T*)(Dst) = *(const T*)(Src);
-        } else {
+        static void StealAssignment(void* dst, void* src) {
+            if constexpr (std::is_move_assignable_v<T>) 
+            {
+                *(T*)(dst) = std::move(*(T*)(src));
+            } 
+            else 
+            {
+            }
         }
-    }
 
-    static void StealAssignment(void* dst, void* src) {
-        if constexpr (std::is_move_assignable_v<T>) 
-		{
-            *(T*)(dst) = std::move(*(T*)(src));
-        } 
-		else 
-		{
+        static auto& GetOperations() 
+        {
+            using Traits = TTypeOperationTraits<T>;
+
+            static FTypeOperations Operations = {
+                Traits::Destroy, Traits::CopyConstruct, Traits::StealConstruct,
+                Traits::CopyAssignment, Traits::StealAssignment
+            };
+            return Operations;
         }
-    }
-
-    static auto& GetOperations() 
-	{
-        using Traits = TTypeOperationTraits<T>;
-
-        static FTypeOperations Operations = {
-            Traits::Destroy, Traits::CopyConstruct, Traits::StealConstruct,
-            Traits::CopyAssignment, Traits::StealAssignment
-		};
-        return Operations;
-    }
-};
+    };
 
 }
