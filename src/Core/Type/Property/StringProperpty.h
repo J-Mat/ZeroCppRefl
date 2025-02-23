@@ -3,18 +3,15 @@
 #include "Property.h"
 #include "../TypeBase.h"
 #include "../ClassType.h"
-/*
-
-*/
 
 namespace REFL
 {
 	class FProperty;
-	class FBoolType;
-	class FBoolProperty : public FProperty
+	class FStringType;
+	class FStringProperty : public FProperty
 	{
 	public:
-		FBoolProperty(const std::string& Name, const FClassType* Owner, EQualifier Qualifier);
+		FStringProperty(const std::string& Name, const FClassType* Owner, EQualifier Qualifier);
 
 
 		const struct FTypeBase* GetType() const noexcept override 
@@ -23,20 +20,20 @@ namespace REFL
 		}
 
 	protected:
-		const FBoolType* m_Type;
+		const FStringType* m_Type;
 	};
 
 
 	template <typename T>
-	class FBoolPropertyImpl : public FBoolProperty {
+	class FStringPropertyImpl : public FStringProperty {
 	public:
-		FBoolPropertyImpl(
+		FStringPropertyImpl(
 			const std::string& Name, 
 			const FClassType* Owner,
 			EQualifier Q, 
 			T Pointer
 		):
-			FBoolProperty(Name, Owner, Q), 
+			FStringProperty(Name, Owner, Q), 
 			m_Pointer(Pointer) 
 		{}
 

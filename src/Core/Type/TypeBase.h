@@ -85,6 +85,7 @@ namespace REFL
 	}
 
 	class FBoolType;
+	class FStringType;
 	class FAny;
 	class FTypeBase
 	{
@@ -101,37 +102,14 @@ namespace REFL
 		std::string GetName() const noexcept { return m_Name; }
 
 		const FBoolType* AsBool() const noexcept;
+		const FStringType* AsString() const noexcept;
 
 	protected:
 		std::string m_Name;
 		DefaultConstructFn m_DefaultConstruct;
 	};
 
-	namespace TypeModule
-	{
-		template <typename T>
-		T* TryCast(FAny& Any)
-		{
-			if (TypeFactory::GetType<T>() == Any.GetType())
-			{
-				if (Any.GetAccessType() == FAny::EAccessType::Ref || Any.GetAccessType() == FAny::EAccessType::Copy)
-				{
-					return static_cast<T*>(Any.GetPayload());
-				}
-			}
-			return nullptr;
-		}
 
-		template <typename T>
-		const T* TryCastConst(const FAny& Any)
-		{
-			if (TypeFactory::GetType<T>() == Any.GetType())
-			{
-				return static_cast<T*>(Any.GetPayload());
-			}
-			return nullptr;
-		}
-	}
 
 #define SET_VALUE_CHECK(Any, Type)                    \
     ((Any.GetAccessType() == FAny::EAccessType::Ref ||   \

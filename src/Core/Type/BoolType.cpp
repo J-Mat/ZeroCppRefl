@@ -1,4 +1,5 @@
 #include "BoolType.h"
+#include "CastOp.hpp"
 
 namespace REFL
 {
@@ -9,13 +10,14 @@ namespace REFL
 
 	void FBoolType::SetValue(FAny& Dst, bool Value) const
 	{
-		//*TypeModule::TryCast<bool>(Dst) = Value;
+		//*CastModule::TryCast<bool>(Dst) = Value;
+		*TryCast<bool>(Dst) = Value;
 	}
 
 	bool FBoolType::GetValue(const FAny& Any) const
 	{
-		//return *TypeModule::TryCastConst<bool>(Any);
-		return true;
+		//return *CastModule::TryCastConst<bool>(Any);
+		return *TryCastConst<bool>(Any);
 	}
 
 }

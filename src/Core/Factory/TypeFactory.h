@@ -3,9 +3,10 @@
 #include "Type/TypeBase.h"
 #include "Type/BoolType.h"
 #include "Type/ClassType.h"
-#include "PropertyFactory.h"
+#include "Type/StringType.h"
 #include "Any.h"
 #include "Utils/VariableTraits.hpp"
+#include "PropertyFactory.h"
 
 namespace REFL
 {
@@ -42,7 +43,7 @@ namespace REFL
 
 			FTypeDict() = default;
 	};
-
+	
 	class FBoolFactory final
 	{
 	public:
@@ -55,8 +56,24 @@ namespace REFL
 		auto& GetType() const noexcept { return m_Type; }
 
 	private:
-			FBoolFactory() = default;
-			FBoolType m_Type;
+		FBoolFactory() = default;
+		FBoolType m_Type;
+	};
+
+	class FStringFactory final
+	{
+	public:
+		static auto& Instance() noexcept
+		{
+			static FStringFactory Inst;
+			return Inst;
+		}
+
+		auto& GetType() const noexcept { return m_Type; }
+
+	private:
+		FStringFactory() = default;
+		FStringType m_Type;
 	};
 
 
@@ -140,6 +157,9 @@ namespace REFL
 		{
 			if constexpr (std::is_same_v<bool, T>) {
 				return &FBoolFactory::Instance().GetType();
+			}
+			else if constexpr (std::is_same_v<std::string, T>) {
+				return &FStringFactory::Instance().GetType();
 			}
 			return nullptr;
 		}
