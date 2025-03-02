@@ -7,35 +7,28 @@
 namespace REFL
 {
 	class FProperty;
-	class FBoolType;
-	class FBoolProperty : public FProperty
+	class FFloatType;
+	class FFloatProperty : public FProperty
 	{
 	public:
-		FBoolProperty(const std::string& Name, const FClassType* Owner, EQualifier Qualifier);
-
-
-		const struct FTypeBase* GetType() const noexcept override 
-		{
-			return (FTypeBase*)m_Type;
-		}
-
-	protected:
-		const FBoolType* m_Type;
+		using FProperty::FProperty;
 	};
 
 
 	template <typename T>
-	class FBoolPropertyImpl : public FBoolProperty {
+	class FFloatPropertyImpl : public FFloatProperty {
 	public:
-		FBoolPropertyImpl(
+		FFloatPropertyImpl(
 			const std::string& Name, 
 			const FClassType* Owner,
 			EQualifier Q, 
 			T Pointer
 		):
-			FBoolProperty(Name, Owner, Q), 
-			m_Pointer(Pointer) 
-		{}
+			FFloatProperty(Name, Owner, Q),
+			m_Pointer(Pointer),
+			m_Type(&FFloatFactory<Utils::TRemoveCVRef <Utils::TVariableTraits<T>>::Type>::Instance().GetType())
+		{
+		}
 
 		FAny CallConst(const FAny& Any) const override {
 			return FactoryModule::CallPropertyConst(Any, m_Pointer, m_Owner);
@@ -46,7 +39,13 @@ namespace REFL
 			return FactoryModule::CallProperty(ClassAny, m_Pointer, m_Owner);
 		}
 
+		const struct FTypeBase* GetType() const noexcept override 
+		{
+			return (FTypeBase*)m_Type;
+		}
+
 	private:
 		T m_Pointer;
+		const class FFloatType* m_Type;
 	};
 }

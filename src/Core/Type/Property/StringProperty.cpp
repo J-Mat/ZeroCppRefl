@@ -1,4 +1,4 @@
-#include "StringProperpty.h"	
+#include "StringProperty.h"	
 #include "Factory/TypeFactory.h"
 
 

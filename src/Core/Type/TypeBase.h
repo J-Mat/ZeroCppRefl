@@ -40,7 +40,8 @@ namespace REFL
 	{
 		None,
 		Boolean,
-		Numeric,
+		Integer,
+		Float,
 		String,
 		Enum,
 		Class,
@@ -86,6 +87,8 @@ namespace REFL
 
 	class FBoolType;
 	class FStringType;
+	class FIntegerType;
+	class FFloatType;
 	class FAny;
 	class FTypeBase
 	{
@@ -98,11 +101,13 @@ namespace REFL
 		FTypeBase(const std::string& Name, DefaultConstructFn fn) : m_Name(Name), m_DefaultConstruct(fn) {}
 
 
-		virtual EValueKind GetKind() const { return EValueKind::None; };
+		virtual EValueKind GetTypeKind() const { return EValueKind::None; };
 		std::string GetName() const noexcept { return m_Name; }
 
 		const FBoolType* AsBool() const noexcept;
 		const FStringType* AsString() const noexcept;
+		const FIntegerType* AsInteger() const noexcept;
+		const FFloatType* AsFloat() const noexcept;
 
 	protected:
 		std::string m_Name;
@@ -114,8 +119,8 @@ namespace REFL
 #define SET_VALUE_CHECK(Any, Type)                    \
     ((Any.GetAccessType() == FAny::EAccessType::Ref ||   \
       Any.GetAccessType() == FAny::EAccessType::Copy) && \
-     Any.GetType()->GetKind() == Type)
+     Any.GetType()->GetTypeKind() == Type)
 
 #define COPY_VALUE_CHECK(Any, Type) \
-    (Any.GetAccessType() != FAny::EAccessType::Null && Any.GetType()->GetKind() == Type)
+    (Any.GetAccessType() != FAny::EAccessType::Null && Any.GetType()->GetTypeKind() == Type)
 }
